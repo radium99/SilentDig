@@ -15,4 +15,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
 	virtual void Draw() override;
+
+private:
+	class ICanPlayerMove* canPlayerMoveInterface = nullptr;
 };

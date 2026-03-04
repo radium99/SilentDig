@@ -14,6 +14,7 @@ class SilentDigLevel : public Wanted::Level, public ICanPlayerMove
 public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
+	virtual void Draw() override;
 
 	// Inherited via ICanPlayerMove
 	virtual bool CanMove(
@@ -27,8 +28,8 @@ private:
 	Wanted::Actor* player = nullptr;
 
 	//   ũ
-	int mapWidth = 100;
-	int mapHeight = 100;
+	int mapWidth = 40;
+	int mapHeight = 40;
 
 	//   ⹰ ˻.
 	std::vector<std::vector<TileType>> map;

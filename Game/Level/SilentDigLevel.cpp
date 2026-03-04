@@ -8,7 +8,10 @@
 void SilentDigLevel::BeginPlay()
 {
 	Level::BeginPlay();
-	CreateWorld();
+	if (player == nullptr)
+	{
+		CreateWorld();
+	}
 }
 
 bool SilentDigLevel::CanMove(const Wanted::Vector2& playerPosition, const Wanted::Vector2& nextPosition)
@@ -16,73 +19,35 @@ bool SilentDigLevel::CanMove(const Wanted::Vector2& playerPosition, const Wanted
 	int x = (int)nextPosition.x;
 	int y = (int)nextPosition.y;
 
-	// 1. Boundary check
-	if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
-	{
-		return false;
-	}
-
-	// 2. Wall check
-	if (map[y][x] == TileType::Ground)
-	{
-		return false;
-	}
+	if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
+	if (map[y][x] == TileType::Wall) return false;
 
 	return true;
 }
 
 void SilentDigLevel::CreateWorld()
 {
-	// 1. Initialize: Fill with Ground
-	map.assign(mapHeight, std::vector<TileType>(mapWidth, TileType::Ground));
+	mapWidth = 30;
+	mapHeight = 30;
+	map.assign(mapHeight, std::vector<TileType>(mapWidth, TileType::Wall));
 
-	// 2. Outer Walls
-	for (int x = 0; x < mapWidth; ++x)
-	{
-		map[0][x] = TileType::Wall;
-		map[mapHeight - 1][x] = TileType::Wall;
-	}
-
-	for (int y = 0; y < mapHeight; ++y) {
-		map[y][0] = TileType::Wall;
-		map[y][mapWidth - 1] = TileType::Wall;
-	}
-
-
-	// 3. BSP Room Generation
-	BSPGenerator bsp(12);
-	bsp.Generate(mapWidth, mapHeight, 4);
+	BSPGenerator bsp(8);
+	bsp.Generate(mapWidth, mapHeight, 3);
+	
 	for (auto* region : bsp.GetLeafRegions())
 	{
 	    for (int y = region->roomY; y < region->roomY + region->roomH; ++y)
 	         for (int x = region->roomX; x < region->roomX + region->roomW; ++x)
 	             map[y][x] = TileType::Empty;
 	}
-	
-	// 4. Actor Spawning
-	for (int y = 0; y < mapHeight; ++y)
-	{
-		for (int x = 0; x < mapWidth; ++x)
-		{
-			Wanted::Vector2 pos((float)x, (float)y);
-			switch (map[y][x])
-			{
-			case TileType::Wall: AddNewActor(new Wall(pos)); break;
-			case TileType::Ground: AddNewActor(new Ground(pos)); break;
-			case TileType::Empty: break;
-			}
-		}
-	}
-	
-	// 5. Player Spawning
-	if (!bsp.GetLeafRegions().empty())
+
+	if (player == nullptr && !bsp.GetLeafRegions().empty())
 	{
 	    auto* startRoom = bsp.GetLeafRegions()[0];
-
 		float spawnX = (float)startRoom->roomX + (startRoom->roomW / 2.0f);
 		float spawnY = (float)startRoom->roomY + (startRoom->roomH / 2.0f);
-		Wanted::Vector2 spawnPos(spawnX, spawnY);
-	    player = new Player(spawnPos);
+		
+	    player = new Player(Wanted::Vector2(spawnX, spawnY));
 	    AddNewActor(player);
 	}
 }
@@ -93,6 +58,26 @@ void SilentDigLevel::Tick(float deltaTime)
 
 	if (player)
 	{
+		// 카메라가 플레이어를 추적하도록 엔진에 알림
 		Wanted::Renderer::Get().SetCameraPosition(player->GetPosition());
 	}
+}
+
+void SilentDigLevel::Draw()
+{
+	// 1. 맵 직접 렌더링 (순수 세상 좌표만 전달)
+	for (int y = 0; y < mapHeight; ++y)
+	{
+		for (int x = 0; x < mapWidth; ++x)
+		{
+			const char* symbol = (map[y][x] == TileType::Wall) ? "#" : ".";
+			Color color = (map[y][x] == TileType::Wall) ? Color::White : Color::Purple;
+			
+			// Renderer::Draw()가 내부적으로 카메라 변환을 수행하므로, 세상 좌표만 넘김
+			Wanted::Renderer::Get().Submit(symbol, Vector2((float)x, (float)y), color, -1);
+		}
+	}
+
+	// 2. 액터들 그리기
+	Level::Draw();
 }

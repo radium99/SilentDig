@@ -1,19 +1,14 @@
 #include "Actor.h"
 #include "Util/Util.h"
 #include "Render/Renderer.h"
-
 #include <iostream>
 #include <Windows.h>
 
 namespace Wanted
 {
-	Actor::Actor(
-		const char* image, 
-		const Vector2& position,
-		Color color)
+	Actor::Actor(const char* image, const Vector2& position, Color color)
 		: position(position), color(color)
 	{
-		// ¹®ÀÚ¿­ º¹»ç.
 		size_t length = strlen(image) + 1;
 		this->image = new char[length];
 		strcpy_s(this->image, length, image);
@@ -21,40 +16,22 @@ namespace Wanted
 
 	Actor::~Actor()
 	{
-		// ¸Ş¸ğ¸® ÇØÁ¦.
 		SafeDeleteArray(image);
 	}
 
-	void Actor::BeginPlay()
-	{
-		// ÀÌº¥Æ®¸¦ ¹ŞÀº ÈÄ¿¡´Â ÇÃ·¡±× ¼³Á¤.
-		hasBeganPlay = true;
-	}
-
-	void Actor::Tick(float deltaTime)
-	{
-	}
+	void Actor::BeginPlay() { hasBeganPlay = true; }
+	void Actor::Tick(float deltaTime) {}
 
 	void Actor::Draw()
 	{
-		//Renderer::Draw(position, color, image);
-
-		// ·»´õ·¯¿¡ µ¥ÀÌÅÍ Á¦Ãâ.
+		// Rendererê°€ ì¹´ë©”ë¼ ìœ„ì¹˜ë¥¼ ë°”íƒ•ìœ¼ë¡œ í™”ë©´ ì¢Œí‘œë¥¼ ì•Œì•„ì„œ ê³„ì‚°í•´ ì£¼ë¯€ë¡œ,
+		// ê·¸ëƒ¥ ì„¸ìƒ(World) ì¢Œí‘œë¥¼ ê·¸ëŒ€ë¡œ Submit í•¨.
 		Renderer::Get().Submit(image, position, color, sortingOrder);
 	}
 
 	void Actor::SetPosition(const Vector2& newPosition)
 	{
-		// ·»´õ·¯¿¡ ºóÄ­ ±×¸®±â ¿äÃ».
-		//Renderer::Draw(position, ' ');
-
-		// º¯°æÇÏ·Á´Â À§Ä¡°¡ ÇöÀç À§Ä¡¿Í °°À¸¸é °Ç³Ê²ñ.
-		if (position == newPosition)
-		{
-			return;
-		}
-
-		// »õ·Î¿î À§Ä¡ ¼³Á¤.
+		if (position == newPosition) return;
 		position = newPosition;
 	}
 }
