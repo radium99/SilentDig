@@ -95,10 +95,12 @@ void BSPGenerator::CreateRoom(Region* node)
 void BSPGenerator::CreateTunnel(Region* node, std::vector<std::vector<TileType>>& map)
 {
     // 연결할 자식 노드가 하나라도 없는 경우.
-    if (!node->left || !node->right)
+    if (!node || !node->left || !node->right)
     {
         return;
     }
+    CreateTunnel(node->left, map);
+    CreateTunnel(node->right, map);
 
     // 연결할 자식 노드들이 있는 경우.
     Wanted::Vector2 startPos = node->left->GetCenter();
@@ -122,8 +124,7 @@ void BSPGenerator::CreateTunnel(Region* node, std::vector<std::vector<TileType>>
         curY += curY < targetY ? 1 : -1;
     }
 
-    CreateTunnel(node->left, map);
-    CreateTunnel(node->right, map);
+
 }
 
 void BSPGenerator::CreateEmptyRoom(std::vector<std::vector<TileType>>& map)

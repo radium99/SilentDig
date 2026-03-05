@@ -19,11 +19,14 @@ public:
 		const Wanted::Vector2& playerPosition,
 		const Wanted::Vector2& nextPosition) override;
 
+	void SpawnEnemy(BSPGenerator& bsp, const Wanted::Vector2& playerPos);
+
 private:
 	// BSP 활용 맵 생성 함수.
 	void CreateWorld();
 
 	Wanted::Actor* player = nullptr;
+	Wanted::Actor* enemy = nullptr;
 
 	// 맵 크기 설정 변수.
 	int mapWidth = 40;

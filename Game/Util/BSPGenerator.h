@@ -3,7 +3,7 @@
 #include "Math/Vector2.h"
 
 
-enum class TileType { Wall, Ground, Empty };
+enum class TileType { Empty, Wall, Ground };
 
 
 // 가상 구역.
