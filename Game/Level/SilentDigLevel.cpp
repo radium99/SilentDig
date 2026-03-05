@@ -19,15 +19,24 @@ bool SilentDigLevel::CanMove(const Wanted::Vector2& playerPosition, const Wanted
 	int y = (int)nextPosition.y;
 
 	if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
-	if (map[y][x] == TileType::Wall) return false;
+
+	// 이동하려는 위치의 맵 타일 유형이 벽일 경우.
+	if (map[y][x] == TileType::Wall) 
+	{
+		// Dig. 해당 위치의 벽 파괴.
+		map[y][x] = TileType::Empty;
+
+		// 파괴는 하되, 그 턴에 이동은 못함.
+		return false;
+	}
 
 	return true;
 }
 
 void SilentDigLevel::CreateWorld()
 {
-	mapWidth = 30;
-	mapHeight = 30;
+	mapWidth = 60;
+	mapHeight = 60;
 	map.assign(mapHeight, std::vector<TileType>(mapWidth, TileType::Wall));
 
 	BSPGenerator bsp(8);
