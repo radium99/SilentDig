@@ -1,6 +1,6 @@
 #include "BSPGenerator.h"
 #include <cstdlib>
-#include <ctime>
+#include <ctime> // time() 사용을 위함.
 #include <algorithm>
 
 void BSPGenerator::Generate(int width, int height, int iterations)
@@ -12,22 +12,30 @@ void BSPGenerator::Generate(int width, int height, int iterations)
         root = nullptr; 
     }
     
+    // Todo: 메모리 누수 가능성 확인 후, leafRegions를 스마트 포인터로 선언할 것. (new Region()하고 delete안하면 메모리 누수 발생)
     leafRegions.clear();
     
     // 시드 초기화
     static bool seeded = false;
-    if (!seeded) { srand((unsigned int)time(NULL)); seeded = true; }
+    if (!seeded) 
+    {
+        // time()을 이용한 종자값 설정.
+        srand((unsigned int)time(nullptr));
+        seeded = true; 
+    }
     
     // 루트 영역 생성
     root = new Region(0, 0, width, height);
     
     // 영역 분할
     Split(root, iterations);
-
+   
     // 각 분할된 영역에 실제 방 생성 (추가된 부분)
     for (auto* region : leafRegions)
     {
         CreateRoom(region);
+        // Todo: 터널 생성 함수 여기에서 호출해야 함.
+        
     }
 }
 
@@ -81,4 +89,52 @@ void BSPGenerator::CreateRoom(Region* node)
     // 영역 내부에서 랜덤 위치 선정
     node->roomX = node->x + (rand() % (node->width - node->roomW));
     node->roomY = node->y + (rand() % (node->height - node->roomH));
+}
+
+// Todo: 방 간의 연결할 터널 생성 함수.
+void BSPGenerator::CreateTunnel(Region* node, std::vector<std::vector<TileType>>& map)
+{
+    // 연결할 자식 노드가 하나라도 없는 경우.
+    if (!node->left || !node->right)
+    {
+        return;
+    }
+
+    // 연결할 자식 노드들이 있는 경우.
+    Wanted::Vector2 startPos = node->left->GetCenter();
+    Wanted::Vector2 endPos = node->right->GetCenter();
+
+    int curX = startPos.x;
+    int curY = startPos.y;
+
+    int targetX = endPos.x;
+    int targetY = endPos.y;
+
+    while(curX != targetX)
+    {
+        map[curY][curX] = TileType::Empty;
+        curX += curX < targetX ? 1 : -1;
+    }
+
+    while (curY != targetY)
+    {
+        map[curY][curX] = TileType::Empty;
+        curY += curY < targetY ? 1 : -1;
+    }
+
+    CreateTunnel(node->left, map);
+    CreateTunnel(node->right, map);
+}
+
+void BSPGenerator::CreateEmptyRoom(std::vector<std::vector<TileType>>& map)
+{
+    for (auto* region : GetLeafRegions())
+    {
+        // 빈 공간(방) 크기 정보로 실제 맵에 그리기.
+        for (int y = region->roomY; y < region->roomY + region->roomH; ++y)
+            for (int x = region->roomX; x < region->roomX + region->roomW; ++x)
+                map[y][x] = TileType::Empty;
+
+        
+    }
 }

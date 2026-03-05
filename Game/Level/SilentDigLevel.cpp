@@ -1,5 +1,4 @@
 #include "SilentDigLevel.h"
-#include "Util/BSPGenerator.h"
 #include "Render/Renderer.h"
 #include "../Actor/Player.h"
 #include "../Actor/Wall.h"
@@ -34,8 +33,12 @@ void SilentDigLevel::CreateWorld()
 	BSPGenerator bsp(8);
 	bsp.Generate(mapWidth, mapHeight, 3);
 	
+	bsp.CreateEmptyRoom(map);
+	bsp.CreateTunnel(bsp.GetRoot(), map);
+
 	for (auto* region : bsp.GetLeafRegions())
 	{
+		// 빈 공간(방) 크기 정보로 실제 맵에 그리기.
 	    for (int y = region->roomY; y < region->roomY + region->roomH; ++y)
 	         for (int x = region->roomX; x < region->roomX + region->roomW; ++x)
 	             map[y][x] = TileType::Empty;
@@ -43,7 +46,7 @@ void SilentDigLevel::CreateWorld()
 
 	if (player == nullptr && !bsp.GetLeafRegions().empty())
 	{
-	    auto* startRoom = bsp.GetLeafRegions()[0];
+	    auto* startRoom = bsp.GetLeafRegions()[0]; // Todo: 플레이어 시작 위치를 0으로 하드 코딩하지 않고, rand()를 이용해 매번 바뀌도록 설정해야 함.
 		float spawnX = (float)startRoom->roomX + (startRoom->roomW / 2.0f);
 		float spawnY = (float)startRoom->roomY + (startRoom->roomH / 2.0f);
 		
@@ -70,7 +73,7 @@ void SilentDigLevel::Draw()
 	{
 		for (int x = 0; x < mapWidth; ++x)
 		{
-			const char* symbol = (map[y][x] == TileType::Wall) ? "#" : ".";
+			const char* symbol = (map[y][x] == TileType::Wall) ? "#" : "."; // 확장 가능성: Wall말고 뚫리지 않는 TileType 추가 가능.
 			Color color = (map[y][x] == TileType::Wall) ? Color::White : Color::Purple;
 			
 			// Renderer::Draw()가 내부적으로 카메라 변환을 수행하므로, 세상 좌표만 넘김
