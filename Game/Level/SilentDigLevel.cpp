@@ -7,8 +7,6 @@
 
 void SilentDigLevel::BeginPlay()
 {
-	//Level::BeginPlay();
-	//CreateWorld();
 	Level::BeginPlay();
 
 	// 중복호출 방지: 처음에는 통과하여 CreateWorld()가 실행되고 끝나는 순간, player가 new Player를 할당받아서 이후는 통과하지 못함.
