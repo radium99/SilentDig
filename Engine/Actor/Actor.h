@@ -53,6 +53,17 @@ namespace Wanted
 
 		inline int GetSortingOrder() const { return sortingOrder; }
 
+		// ================== 부과 컨텐츠 =======================
+		// AABB 충돌 여부 확인 함수.
+		bool TestIntersect(const Actor* const other);
+
+		// 액터의 이미지 값 변경 함수.
+		void ChangeImage(const char* newImage);
+
+		// 삭제 함수.
+		void Destroy();
+
+
 	protected:
 		// 이미 BeginPlay 이벤트를 받았는지 여부.
 		bool hasBeganPlay = false;
@@ -78,5 +89,19 @@ namespace Wanted
 	private:
 		// 위치.
 		Vector2 position;
+
+		//============= 부과 컨텐츠 ==================
+		// 그릴 문자(이미지).
+		//char* image = nullptr;
+
+		// 문자열 길이.
+		int width = 0;
+		//===========부과적인 컨텐츠=================================
+
+		// 플레이어가 죽었는지 확인.
+		bool isPlayerDead = false;
+
+		// 플레이어가 죽은 위치 (Draw에서 처리하기 위해 Tick에서 저장).
+		Wanted::Vector2 playerDeadPosition;
 	};
 }

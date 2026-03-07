@@ -45,6 +45,11 @@ bool SilentDigLevel::CanMove(const Wanted::Vector2& playerPosition, const Wanted
 	return true;
 }
 
+TileType SilentDigLevel::GetTileAt(int x, int y) const
+{
+	return map[y][x];
+}
+
 void SilentDigLevel::CreateWorld()
 {
 	mapWidth = 60;
@@ -84,6 +89,10 @@ void SilentDigLevel::Tick(float deltaTime)
 	}
 
 }
+Wanted::Vector2 SilentDigLevel::GetPlayerPosition() const
+{
+	return player->GetPosition();
+}
 void SilentDigLevel::SpawnEnemy(BSPGenerator& bsp, const Wanted::Vector2& playerPos)
 {
 	const auto& leafRegions = bsp.GetLeafRegions();
@@ -98,20 +107,6 @@ void SilentDigLevel::SpawnEnemy(BSPGenerator& bsp, const Wanted::Vector2& player
 
 			AddNewActor(new Enemy(Wanted::Vector2(spawnX, spawnY)));
 		}
-		//for (int ix = 0; ix < leafRegions.size(); ++ix)
-		//{
-		//	// 플레이어를 맵 특정 위치에 생성.
-		//	if (enemy == nullptr && !leafRegions.empty())
-		//	{
-		//		int random = max(1, rand()); // Todo: 플레이어 위치인 0 제외.
-		//		auto* spawnRoom = leafRegions[random]; // Todo: 플레이어 시작 위치를 0으로 하드 코딩하지 않고, rand()를 이용해 매번 바뀌도록 설정해야 함.
-		//		float spawnX = (float)spawnRoom->roomX + (spawnRoom->roomW / 2.0f);
-		//		float spawnY = (float)spawnRoom->roomY + (spawnRoom->roomH / 2.0f);
-
-		//		enemy = new Enemy(Wanted::Vector2(spawnX, spawnY));
-		//		AddNewActor(enemy);
-		//	}
-		//}
 	}
 
 }
@@ -135,4 +130,52 @@ void SilentDigLevel::Draw()
 
 	// 2. 액터들 그리기
 	Level::Draw();
+}
+
+
+void SilentDigLevel::ProcessCollisionEnemyAndPlayer()
+{
+	// 액터 필터링을 위한 변수.
+	Player* player = nullptr;
+	std::vector<Actor*> enemys;
+
+	// 액터 필터링.
+	for (Actor* const actor : actors)
+	{
+		if (!player && actor->IsTypeOf<Player>())
+		{
+			player = actor->As<Player>();
+			continue;
+		}
+
+		if (actor->IsTypeOf<Enemy>())
+		{
+			enemys.emplace_back(actor);
+		}
+	}
+
+	// 판정 처리 안해도 되는지 확인.
+	if (enemys.size() == 0 || !player)
+	{
+		return;
+	}
+
+	// 충돌 판정.
+	for (Actor* const enemy : enemys)
+	{
+		if (enemy->TestIntersect(player))
+		{
+			//enemy->Destroy();
+
+			// 플레이어 죽음 설정.
+			isPlayerDead = true;
+
+			// 죽은 위치 저장.
+			playerDeadPosition = player->GetPosition();
+
+			// 액터 제거 처리.
+			player->Destroy();
+			break;
+		}
+	}
 }

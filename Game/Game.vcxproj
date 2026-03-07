@@ -162,6 +162,8 @@
     <ClCompile Include="Level\SilentDigLevel.cpp" />
     <ClCompile Include="Level\SokobanLevel.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Util\AStarAlgorithm\AStar.cpp" />
+    <ClCompile Include="Util\AStarAlgorithm\PathFindManager.cpp" />
     <ClCompile Include="Util\BSPGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -171,11 +173,16 @@
     <ClInclude Include="Actor\Player.h" />
     <ClInclude Include="Actor\Target.h" />
     <ClInclude Include="Actor\Wall.h" />
+    <ClInclude Include="Common\TileType.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Interface\ICanPlayerMove.h" />
+    <ClInclude Include="Interface\IMapPathfinder.h" />
     <ClInclude Include="Level\MenuLevel.h" />
     <ClInclude Include="Level\SilentDigLevel.h" />
     <ClInclude Include="Level\SokobanLevel.h" />
+    <ClInclude Include="Util\AStarAlgorithm\AStar.h" />
+    <ClInclude Include="Util\AStarAlgorithm\Node.h" />
+    <ClInclude Include="Util\AStarAlgorithm\PathFindManager.h" />
     <ClInclude Include="Util\BSPGenerator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

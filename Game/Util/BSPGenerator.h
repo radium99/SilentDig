@@ -1,9 +1,7 @@
 #pragma once
 #include <vector>
 #include "Math/Vector2.h"
-
-
-enum class TileType { Empty, Wall, Ground };
+#include "Common/TileType.h"
 
 
 // 가상 구역.

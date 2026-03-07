@@ -51,6 +51,12 @@
     <ClCompile Include="Util\BSPGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Util\AStarAlgorithm\PathFindManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\AStarAlgorithm\AStar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Level\SokobanLevel.h">
@@ -87,6 +93,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Level\SilentDigLevel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TileType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\IMapPathfinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\AStarAlgorithm\PathFindManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\AStarAlgorithm\AStar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\AStarAlgorithm\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

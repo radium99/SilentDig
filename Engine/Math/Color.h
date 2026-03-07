@@ -15,6 +15,6 @@ namespace Wanted
 		Red = FOREGROUND_RED,
 		White = Blue | Green | Red,
 		Maganta = FOREGROUND_BLUE | FOREGROUND_RED,
-		Yellow = FOREGROUND_GREEN | FOREGROUND_RED
+		Yellow = FOREGROUND_GREEN | FOREGROUND_RED,
 	};
 }
