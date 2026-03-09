@@ -9,9 +9,15 @@ namespace Wanted
 	Actor::Actor(const char* image, const Vector2& position, Color color)
 		: position(position), color(color)
 	{
-		size_t length = strlen(image) + 1;
-		this->image = new char[length];
-		strcpy_s(this->image, length, image);
+		// 문자열 복사 방법1.
+		//size_t length = strlen(image) + 1;
+		//this->image = new char[length];
+		//strcpy_s(this->image, length, image);
+
+		// 문자열 복사 방법2.
+		width = static_cast<int>(strlen(image));
+		this->image = new char[width + 1];
+		strcpy_s(this->image, width + 1, image);
 	}
 
 	Actor::~Actor()
@@ -31,7 +37,10 @@ namespace Wanted
 
 	void Actor::SetPosition(const Vector2& newPosition)
 	{
+		// 변경하려는 위치가 현재 위치와 같으면 건너뜀.
 		if (position == newPosition) return;
+
+		// 새로운 위치 설정.
 		position = newPosition;
 	}
 
@@ -50,7 +59,6 @@ namespace Wanted
 			= other->position.x + other->width - 1;
 
 		// 안겹치는 조건 확인.
-
 		// 다른 액터의 왼쪽 좌표가
 		// 내 오른쪽 좌표보다 더 오른쪽에 있는 경우.
 		if (otherXMin > xMax)

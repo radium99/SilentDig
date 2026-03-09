@@ -21,6 +21,7 @@ namespace Wanted
 	{
 		if (string)
 		{
+
 			delete[] string;
 			string = nullptr;
 		}
@@ -69,5 +70,10 @@ namespace Wanted
 		coord.Y = static_cast<short>(y);
 
 		return coord;
+	}
+
+	float Vector2::Length()
+	{
+		return sqrtf(x * x + y * y);
 	}
 }

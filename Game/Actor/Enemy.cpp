@@ -27,10 +27,28 @@ void Enemy::Tick(float deltaTime)
 
 		// 경로가 없거나, 목적지까지 갔다면 새로 요청.
 		// Todo: 시각화가 끝난 후 진행해야 함. 적이 특정 이벤트가 발생했을 때, 경로탐색 함수를 실행하도록 수정해야 함. (현재는 시작하자마자 경로 탐색한다.)
-		if (currentPath.empty() || pathIndex >= currentPath.size())
+		switch (state)
 		{
+		case EnemyState::IDLE:
+			break;
+		case EnemyState::SUSPICIOUS:
+			break;
+		case EnemyState::ANGRY:
+			// 경로 요청.
 			RequestNewPath();
+			// 5. 경로를 한 칸씩 읽으며 이동.
+			if (pathIndex < currentPath.size())
+			{
+				SetPosition(currentPath[pathIndex]);
+				pathIndex++;
+			}
 		}
+		
+		
+		//if (currentPath.empty() || pathIndex >= currentPath.size())
+		//{
+		//	RequestNewPath();
+		//}
 
 		// 5. 경로를 한 칸씩 읽으며 이동.
 		if (pathIndex < currentPath.size())
@@ -84,6 +102,11 @@ void Enemy::RequestNewPath()
 	auto* level = dynamic_cast<SilentDigLevel*>(GetOwner());
 	if (!level) return;
 
+	if (level->IsPlayerDead())
+	{
+		return;
+	}
+
 	// 플레이어 위치와 맵 인터페이스 획득.
 	Wanted::Vector2 playerPos = level->GetPlayerPosition(); // SilentDigLevel의 함수 GetPlayerPosition 호출.
 	const IMapPathfinder& map = *level;
@@ -91,4 +114,26 @@ void Enemy::RequestNewPath()
 	// PathFindManager의 FindePath 함수는 전역 함수(static)이기 때문에 객체없이 어디에서든 사용가능하다.
 	currentPath = PathFindManager::FindPath(map, GetPosition(), playerPos);
 	pathIndex = 0;
+}
+
+void Enemy::OnHearNoise(Vector2 location, float intensity)
+{
+	// 소음수치를 어그로 게이치에 중첩시킴.
+	aggroGauge += intensity;
+
+	// 어그로 게이지가 임계치를 넘을 경우 경로 탐색 요청.
+	if (aggroGauge >= guageThreshold)
+	{
+		
+		state = EnemyState::ANGRY;
+	}
+	else if (aggroGauge > 35)
+	{
+		state = EnemyState::SUSPICIOUS;
+	}
+	else
+	{
+		state = EnemyState::IDLE;
+	}
+
 }

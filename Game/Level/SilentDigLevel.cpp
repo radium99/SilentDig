@@ -6,16 +6,21 @@
 #include "../Actor/Enemy.h"
 #include "../Engine/Core/Input.h"
 #include "../Config/Setting.h" // 경로 시각화 옵션.
+//#include "../Engine/Engine/Engine.h"
 
 void SilentDigLevel::BeginPlay()
 {
 	Level::BeginPlay();
 
-	// 중복호출 방지: 처음에는 통과하여 CreateWorld()가 실행되고 끝나는 순간, player가 new Player를 할당받아서 이후는 통과하지 못함.
-	if (player == nullptr)
+	// 중복호출 방지: 처음에는 통과하여 CreateWorld()가 실행되면 hasCreateWorld가 true가 되고
+	// 함수 실행이 끝나는 순간, player가 new Player를 할당받고 이후는 통과하지 못함.
+	if ( !hasCreateWorld && player == nullptr)
 	{
-		//GameSettings::ShowPath = false;
 		CreateWorld();
+	}
+	else
+	{
+		// Todo: 다시 도전하겠냐는 문구 씬 있어야 함.
 	}
 }
 
@@ -40,12 +45,36 @@ bool SilentDigLevel::CanMove(const Wanted::Vector2& playerPosition, const Wanted
 	{
 		// Dig. 해당 위치의 벽 파괴.
 		map[y][x] = TileType::Empty; //effective c++ 관점에서 맞지 않음. (쿼리와 커멘드를 구분하자.)
-
-		//이동 못함.
+		
+		// Todo: 확률적으로 소음 발생로직.
+		if (rand() % 100 < 50)
+		{
+			NotifyNoiseToEnemies(Vector2(x, y), 50.0f);
+		}
+		
+			//이동 못함.
 		return false;
 	}
 
 	return true;
+}
+void SilentDigLevel::NotifyNoiseToEnemies(Vector2 noisePos, float intensity) 
+{
+
+	for (Wanted::Actor* const actor : actors)
+	{
+		if (actor->IsTypeOf<Enemy>())
+		{
+			float dist = (actor->GetPosition() - noisePos).Length(); //Length는 거리 구하는 공식.
+			if (dist < 15.0f) // 소음이 들리는 최대 거리
+			{
+				// 거리에 따른 감쇄(멀수록 게이지가 적게 오름)
+				float finalIntensity = intensity * (1.0f - (dist / 15.0f));
+				actor->As<Enemy>()->Enemy::OnHearNoise(noisePos, finalIntensity);
+			}
+		}
+	}
+	//const std::vector<Actor*> tempActors = GetActors();
 }
 
 TileType SilentDigLevel::GetTileAt(int x, int y) const
@@ -55,6 +84,7 @@ TileType SilentDigLevel::GetTileAt(int x, int y) const
 
 void SilentDigLevel::CreateWorld()
 {
+	hasCreateWorld = true;
 	mapWidth = 60;
 	mapHeight = 60;
 	map.assign(mapHeight, std::vector<TileType>(mapWidth, TileType::Wall));
@@ -85,22 +115,36 @@ void SilentDigLevel::Tick(float deltaTime)
 {
 	Level::Tick(deltaTime);
 
-	if (player)
+	if (player != nullptr)
 	{
 		// 카메라가 플레이어를 추적하도록 엔진에 알림
 		Wanted::Renderer::Get().SetCameraPosition(player->GetPosition());
 	}
+	else if (isPlayerDead)
+	{
+		Wanted::Renderer::Get().SetCameraPosition(playerDeadPosition);
+	}
 
+	// 경로 시각화 토글.
 	if (Wanted::Input::Get().GetKeyDown(VK_F1))
 	{
 		GameSettings::ShowPath = !GameSettings::ShowPath;
 	}
 
+	ProcessCollisionEnemyAndPlayer();
 }
+
+
 Wanted::Vector2 SilentDigLevel::GetPlayerPosition() const
 {
-	return player->GetPosition();
+	if (player != nullptr) {
+		return player->GetPosition();
+	}
+
+	return playerDeadPosition;
 }
+
+
 void SilentDigLevel::SpawnEnemy(BSPGenerator& bsp, const Wanted::Vector2& playerPos)
 {
 	const auto& leafRegions = bsp.GetLeafRegions();
@@ -138,32 +182,46 @@ void SilentDigLevel::Draw()
 
 	// 2. 액터들 그리기
 	Level::Draw();
+
+	if (isPlayerDead)
+	{
+		// 플레이어 죽음 메시지 Renderer에 제출.
+		Renderer::Get().Submit("!Dead!", playerDeadPosition);
+
+		// 점수 보여주기.
+		//ShowScore();
+
+		// 화면에 바로 표시.
+		//Renderer::Get().PresentImmediately();
+
+		// 프로그램 정지.
+		Sleep(2000);
+
+		// 게임 종료.
+		//Engine::Get().QuitEngine();
+	}
 }
 
 
 void SilentDigLevel::ProcessCollisionEnemyAndPlayer()
 {
-	// 액터 필터링을 위한 변수.
-	Player* player = nullptr;
-	std::vector<Actor*> enemys;
+	// 멤버 변수 player가 없거나 이미 죽었으면 처리할 필요 없음.
+	if (!player || isPlayerDead)
+	{
+		return;
+	}
 
-	// 액터 필터링.
+	// 적 액터만 필터링.
+	std::vector<Actor*> enemys;
 	for (Actor* const actor : actors)
 	{
-		if (!player && actor->IsTypeOf<Player>())
-		{
-			player = actor->As<Player>();
-			continue;
-		}
-
 		if (actor->IsTypeOf<Enemy>())
 		{
 			enemys.emplace_back(actor);
 		}
 	}
 
-	// 판정 처리 안해도 되는지 확인.
-	if (enemys.size() == 0 || !player)
+	if (enemys.empty())
 	{
 		return;
 	}
@@ -171,19 +229,28 @@ void SilentDigLevel::ProcessCollisionEnemyAndPlayer()
 	// 충돌 판정.
 	for (Actor* const enemy : enemys)
 	{
+		// 멤버 변수 player와 충돌 검사
 		if (enemy->TestIntersect(player))
 		{
-			//enemy->Destroy();
-
 			// 플레이어 죽음 설정.
 			isPlayerDead = true;
 
 			// 죽은 위치 저장.
 			playerDeadPosition = player->GetPosition();
-
-			// 액터 제거 처리.
+			
+			// 멤버 변수 player 파괴 및 nullptr 설정 (중요: 멤버 변수를 직접 제어)
 			player->Destroy();
+			player = nullptr; 
 			break;
 		}
+	}   
+}
+
+bool SilentDigLevel::IsPlayerDead()
+{     
+	if (isPlayerDead)
+	{
+		return true;
 	}
+	return false;
 }

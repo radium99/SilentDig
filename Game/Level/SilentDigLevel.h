@@ -31,12 +31,14 @@ public:
 	// 적 생성 함수.
 	void SpawnEnemy(BSPGenerator& bsp, const Wanted::Vector2& playerPos);
 
-	// 경로 탐색 매니저에게 맵정보와 플레이어 위치를 넘
+	// 거리 기반 노이즈 수치 전달.
+	void NotifyNoiseToEnemies(Wanted::Vector2 noisePos, float intensity);
 
 	// ============== 부과 컨텐츠 ==============================
 	// 플레이어와 적 충돌 감지 및 처리 함수.
 	void ProcessCollisionEnemyAndPlayer();
 
+	bool IsPlayerDead();
 
 private:
 	// BSP 활용 맵 생성 함수.
@@ -61,4 +63,5 @@ private:
 	// 플레이어가 죽었는지 확인.
 	bool isPlayerDead = false;
 
+	bool hasCreateWorld = false;
 };

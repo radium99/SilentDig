@@ -31,6 +31,9 @@ namespace Wanted
 		static Vector2 Up;
 		static Vector2 Right;
 
+		// 벡터 거리 계산 함수.
+		float Length();
+
 	public:
 		// x/y 좌표.
 		int x = 0;

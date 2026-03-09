@@ -39,7 +39,7 @@ namespace Wanted
 
 		// Screen and Camera
 		Vector2 GetScreenSize() const { return screenSize; }
-		void SetCameraPosition(const Vector2& pos) { cameraPosition = pos; }
+		void SetCameraPosition(const Vector2& pos); //{ cameraPosition = pos; }
 		Vector2 GetCameraPosition() const { return cameraPosition; }
 
 	private:
