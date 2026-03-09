@@ -84,7 +84,9 @@ void Enemy::Tick(float deltaTime)
 void Enemy::Draw()
 {
 	Actor::Draw();
-
+	if (state == EnemyState::IDLE) { color = Color::Blue; }
+	if (state == EnemyState::SUSPICIOUS) { color = Color::Yellow; }
+	if (state == EnemyState::ANGRY) { color = Color::Red; }
 	// 시각화 활성화 && 현재 경로가 존재한 경우.
 	if (GameSettings::ShowPath && !currentPath.empty())
 	{

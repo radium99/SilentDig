@@ -66,7 +66,7 @@ void SilentDigLevel::NotifyNoiseToEnemies(Vector2 noisePos, float intensity)
 		if (actor->IsTypeOf<Enemy>())
 		{
 			float dist = (actor->GetPosition() - noisePos).Length(); //Length는 거리 구하는 공식.
-			if (dist < 15.0f) // 소음이 들리는 최대 거리
+			if (dist < 20.0f) // 소음이 들리는 최대 거리
 			{
 				// 거리에 따른 감쇄(멀수록 게이지가 적게 오름)
 				float finalIntensity = intensity * (1.0f - (dist / 15.0f));
