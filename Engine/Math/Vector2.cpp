@@ -63,6 +63,11 @@ namespace Wanted
 		return !(*this == other);
 	}
 
+	Vector2 Vector2::operator*(const float other) const
+	{
+		return Vector2(x* other, y * other);
+	}
+
 	Vector2::operator COORD() const
 	{
 		COORD coord = {};
@@ -75,5 +80,20 @@ namespace Wanted
 	float Vector2::Length()
 	{
 		return sqrtf(x * x + y * y);
+	}
+
+	Vector2 Vector2::Normalize() {
+		 float length = sqrt(x * x + y * y);
+
+		 if (length > 0.0f) {
+			 float invLength = 1.0f / length; // 나눗셈은 딱 한 번 진행(연산비용이 크므로)
+			 return Vector2(x * invLength, y * invLength); // 이후는 빠른 곱셈
+		 }
+
+		 return Vector2(0, 0);
+	}
+
+	float Vector2::Dot(Vector2 b) {
+		return (x * b.x) + (y * b.y);
 	}
 }

@@ -25,6 +25,7 @@ public:
 
 	// 소음 이벤트리스너.
 	void OnHearNoise(Vector2 location, float intensity);
+	bool CanSeePlayer(const Wanted::Vector2& playerPos, const IMapPathfinder& map);
 
 protected:
 	//virtual void BeginPlay() override;
@@ -56,4 +57,9 @@ private:
 	float aggroGauge = 0.0f;
 	float guageThreshold = 70.0f; // 임계치 설정.
 
+	// 시야 범위
+	float viewDistance = 15.0f;
+
+	Vector2 lookDir; // 시야 거리 10칸.
+	float viewAngle; 
 };

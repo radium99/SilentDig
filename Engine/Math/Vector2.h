@@ -18,7 +18,7 @@ namespace Wanted
 		// 연산자 오버로딩.
 		Vector2 operator+(const Vector2& other) const;
 		Vector2 operator-(const Vector2& other) const;
-
+		Vector2 operator*(const float other) const;
 		bool operator==(const Vector2& other) const;
 		bool operator!=(const Vector2& other) const;
 
@@ -33,6 +33,9 @@ namespace Wanted
 
 		// 벡터 거리 계산 함수.
 		float Length();
+		Vector2 Normalize();
+
+		float Dot(Vector2 b);
 
 	public:
 		// x/y 좌표.

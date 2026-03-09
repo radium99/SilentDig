@@ -13,6 +13,10 @@ Enemy::Enemy(const Vector2& position)
 {
 	// 플레이어를 잡는 포지션이므로 플레이어 위로 덮히도록 함. (player는 10)
 	sortingOrder = 11;
+
+	lookDir = Vector2(0,1); 
+	viewDistance = 10.0f; // 시야 거리 10칸.
+	viewAngle = 90.0f;
 }
 
 
@@ -45,6 +49,11 @@ void Enemy::Tick(float deltaTime)
 			// 5. 경로를 한 칸씩 읽으며 이동.
 			if (pathIndex < currentPath.size())
 			{
+				Vector2 nextPos = currentPath[pathIndex];
+				Vector2 currentPos = GetPosition();
+
+				lookDir = nextPos - currentPos;
+				lookDir.Normalize();
 				SetPosition(currentPath[pathIndex]);
 				pathIndex++;    
 			
@@ -132,6 +141,9 @@ void Enemy::RequestNewPath()
 	Wanted::Vector2 playerPos = level->GetPlayerPosition(); // SilentDigLevel의 함수 GetPlayerPosition 호출.
 	const IMapPathfinder& map = *level;
 
+	lookDir = playerPos - GetPosition();
+	lookDir.Normalize();
+
 	// PathFindManager의 FindePath 함수는 전역 함수(static)이기 때문에 객체없이 어디에서든 사용가능하다.
 	currentPath = PathFindManager::FindPath(map, GetPosition(), playerPos);
 	pathIndex = 0;
@@ -161,4 +173,28 @@ void Enemy::OnHearNoise(Vector2 location, float intensity)
 		state = EnemyState::IDLE;
 	}
 
+}
+
+bool Enemy::CanSeePlayer(const Wanted::Vector2& playerPos, const IMapPathfinder& map)
+{
+	Wanted::Vector2 myPos = GetPosition();
+	Wanted::Vector2 diff = playerPos - myPos;
+	float distance = diff.Length();
+
+	if (distance > viewDistance) return false;
+
+	diff.Normalize();
+
+	float dot = lookDir.Dot(diff);
+	float angle = cosf(viewAngle * 0.5f * (3.14159f / 180.0f));
+	if (dot < angle) return false;
+
+	for (float d = 0.5f; d < distance; d += 0.5f) {
+		Wanted::Vector2 checkPos = myPos + (diff * d);
+		if (map.GetTileAt((int)checkPos.x, (int)checkPos.y) == TileType::Wall) {
+			return false;
+		}
+	}
+
+	return true;
 }
