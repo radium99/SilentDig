@@ -5,7 +5,6 @@
 #include "Util/BSPGenerator.h"
 #include "Interface/IMapPathfinder.h"
 
-
 namespace Wanted { class Actor; }
 
 class SilentDigLevel : public Wanted::Level, public ICanPlayerMove, public IMapPathfinder

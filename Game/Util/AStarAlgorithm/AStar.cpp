@@ -21,11 +21,12 @@ std::vector<Wanted::Vector2> AStar::FindPath(const Wanted::Vector2& startPos, co
 	closedList.clear();
 
 	Node* startNode = new Node(startPos);
-	startNode->gCost = 0;
-	startNode->hCost = CalculateHeuristic(startNode, goalPos);
-	startNode->fCost = startNode->gCost + startNode->hCost;
+	startNode->gCost = 0; // g(n)
+	startNode->hCost = CalculateHeuristic(startNode, goalPos); // h(n)
+	startNode->fCost = startNode->gCost + startNode->hCost; // f(n) = g(n) + h(n)
 	openList.push_back(startNode);
 
+	// x좌표, y좌표, 길이
 	std::vector<Direction> directions = {
 		{ 0, 1, 1.0f }, { 0, -1, 1.0f }, { 1, 0, 1.0f }, { -1, 0, 1.0f },
 		{ 1, 1, 1.414f }, { 1, -1, 1.414f }, { -1, 1, 1.414f }, { -1, -1, 1.414f }
@@ -44,6 +45,7 @@ std::vector<Wanted::Vector2> AStar::FindPath(const Wanted::Vector2& startPos, co
 			}
 		}
 
+		// 목적지 도착 시, 최종 경로 반환.
 		if (IsDestination(currentNode, goalPos))
 		{
 			return ConstructPath(currentNode);
@@ -106,7 +108,10 @@ std::vector<Wanted::Vector2> AStar::ConstructPath(Node* goalNode)
 	Node* current = goalNode;
 	while (current != nullptr)
 	{
+		// 현재 노드가 가지고 있는 좌표 값 경로에 추가.
 		path.push_back(current->position);
+
+		// 현재 노드의 부모 노드로 이동.
 		current = current->parentNode;
 	}
 	std::reverse(path.begin(), path.end());

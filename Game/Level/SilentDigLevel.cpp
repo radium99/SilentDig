@@ -4,6 +4,8 @@
 #include "../Actor/Wall.h"
 #include "../Actor/Ground.h"
 #include "../Actor/Enemy.h"
+#include "../Engine/Core/Input.h"
+#include "../Config/Setting.h" // 경로 시각화 옵션.
 
 void SilentDigLevel::BeginPlay()
 {
@@ -12,6 +14,7 @@ void SilentDigLevel::BeginPlay()
 	// 중복호출 방지: 처음에는 통과하여 CreateWorld()가 실행되고 끝나는 순간, player가 new Player를 할당받아서 이후는 통과하지 못함.
 	if (player == nullptr)
 	{
+		//GameSettings::ShowPath = false;
 		CreateWorld();
 	}
 }
@@ -86,6 +89,11 @@ void SilentDigLevel::Tick(float deltaTime)
 	{
 		// 카메라가 플레이어를 추적하도록 엔진에 알림
 		Wanted::Renderer::Get().SetCameraPosition(player->GetPosition());
+	}
+
+	if (Wanted::Input::Get().GetKeyDown(VK_F1))
+	{
+		GameSettings::ShowPath = !GameSettings::ShowPath;
 	}
 
 }

@@ -57,6 +57,9 @@
     <ClCompile Include="Util\AStarAlgorithm\AStar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Config\Setting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Level\SokobanLevel.h">
@@ -108,6 +111,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Util\AStarAlgorithm\Node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Config\Setting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

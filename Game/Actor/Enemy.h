@@ -2,6 +2,7 @@
 #include "Actor/Actor.h"
 // AStar 적용을 위함.
 #include "Util/AStarAlgorithm/PathFindManager.h"
+#include "../Config/Setting.h"
 
 using namespace Wanted;
 
@@ -15,12 +16,9 @@ public:
 
 	virtual void Tick(float deltaTime) override;
 
-	// 경로 요청 함수.
-	void PathChasing();
-
-//protected:
-//	//virtual void BeginPlay() override;
-//	virtual void Draw() override;
+protected:
+	//virtual void BeginPlay() override;
+	virtual void Draw() override;
 
 private:
 
