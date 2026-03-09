@@ -24,7 +24,7 @@ namespace Wanted
 		{
 			const char* text = nullptr;
 			Vector2 position;
-			Color color = Color::White;
+			Color color = Color::WHITE;
 			int sortingOrder = 0;
 		};
 
@@ -33,7 +33,7 @@ namespace Wanted
 		~Renderer();
 
 		void Draw();
-		void Submit(const char* text, const Vector2& position, Color color = Color::White, int sortingOrder = 0);
+		void Submit(const char* text, const Vector2& position, Color color = Color::WHITE, int sortingOrder = 0);
 
 		static Renderer& Get();
 

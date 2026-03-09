@@ -163,6 +163,7 @@
     <ClCompile Include="Level\SilentDigLevel.cpp" />
     <ClCompile Include="Level\SokobanLevel.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Level\MainMenu.cpp" />
     <ClCompile Include="Util\AStarAlgorithm\AStar.cpp" />
     <ClCompile Include="Util\AStarAlgorithm\PathFindManager.cpp" />
     <ClCompile Include="Util\BSPGenerator.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="Level\MenuLevel.h" />
     <ClInclude Include="Level\SilentDigLevel.h" />
     <ClInclude Include="Level\SokobanLevel.h" />
+    <ClInclude Include="Level\MainMenu.h" />
     <ClInclude Include="Util\AStarAlgorithm\AStar.h" />
     <ClInclude Include="Util\AStarAlgorithm\Node.h" />
     <ClInclude Include="Util\AStarAlgorithm\PathFindManager.h" />

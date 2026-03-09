@@ -9,7 +9,7 @@
 
 
 Enemy::Enemy(const Vector2& position)
-	: super("E", position, Color::Yellow)
+	: super("E", position, Color::YELLOW)
 {
 	// 플레이어를 잡는 포지션이므로 플레이어 위로 덮히도록 함. (player는 10)
 	sortingOrder = 11;
@@ -21,6 +21,7 @@ void Enemy::Tick(float deltaTime)
 	Actor::Tick(deltaTime);
 
 	moveTimer += deltaTime;
+	rePathTimer += deltaTime;
 	if (moveTimer >= moveInterval)
 	{
 		moveTimer = 0.0f;
@@ -34,14 +35,21 @@ void Enemy::Tick(float deltaTime)
 		case EnemyState::SUSPICIOUS:
 			break;
 		case EnemyState::ANGRY:
-			// 경로 요청.
-			RequestNewPath();
+			// 이미 경로가 있고 아직 이동 중인 경우 새로운 경로 요청 x.
+			if (currentPath.empty() || pathIndex >= currentPath.size())
+			{
+				// 경로 요청.
+				RequestNewPath();
+			}
+
 			// 5. 경로를 한 칸씩 읽으며 이동.
 			if (pathIndex < currentPath.size())
 			{
 				SetPosition(currentPath[pathIndex]);
-				pathIndex++;
+				pathIndex++;    
+			
 			}
+			
 		}
 		
 		
@@ -51,11 +59,15 @@ void Enemy::Tick(float deltaTime)
 		//}
 
 		// 5. 경로를 한 칸씩 읽으며 이동.
-		if (pathIndex < currentPath.size())
-		{
-			SetPosition(currentPath[pathIndex]);
-			pathIndex++;
-		}
+		//if (pathIndex < currentPath.size())
+		//{
+		//	SetPosition(currentPath[pathIndex]);
+		//	pathIndex++;
+		//}
+		
+		// 
+	
+
 		//int direction = rand() % 4;
 		//Wanted::Vector2 nextPos = GetPosition();
 
@@ -84,15 +96,17 @@ void Enemy::Tick(float deltaTime)
 void Enemy::Draw()
 {
 	Actor::Draw();
-	if (state == EnemyState::IDLE) { color = Color::Blue; }
-	if (state == EnemyState::SUSPICIOUS) { color = Color::Yellow; }
-	if (state == EnemyState::ANGRY) { color = Color::Red; }
+	if (state == EnemyState::IDLE) { color = Color::BLUE; }
+	if (state == EnemyState::SUSPICIOUS) { color = Color::YELLOW; }
+	if (state == EnemyState::ANGRY) { color = Color::RED; }
+
+	// 경로 시각화.
 	// 시각화 활성화 && 현재 경로가 존재한 경우.
 	if (GameSettings::ShowPath && !currentPath.empty())
 	{
 		for (int i = pathIndex; i < currentPath.size(); ++i)
 		{
-			Renderer::Get().Submit("*", currentPath[i], Wanted::Color::Red, 20);
+			Renderer::Get().Submit("*", currentPath[i], Wanted::Color::DARKRED, 20);
 		}
 	}
 }
@@ -100,6 +114,12 @@ void Enemy::Draw()
 
 void Enemy::RequestNewPath()
 {
+	// 쿨타임 중이면 요청 거절.
+	if (rePathTimer < rePathInterval)
+	{
+		return;
+	}
+
 	// 자신이 속한 레벨 객체(level*)를 다운 캐스팅하여 SilentDigLevel*로 가져옴.
 	auto* level = dynamic_cast<SilentDigLevel*>(GetOwner());
 	if (!level) return;
@@ -108,7 +128,6 @@ void Enemy::RequestNewPath()
 	{
 		return;
 	}
-
 	// 플레이어 위치와 맵 인터페이스 획득.
 	Wanted::Vector2 playerPos = level->GetPlayerPosition(); // SilentDigLevel의 함수 GetPlayerPosition 호출.
 	const IMapPathfinder& map = *level;
@@ -116,18 +135,22 @@ void Enemy::RequestNewPath()
 	// PathFindManager의 FindePath 함수는 전역 함수(static)이기 때문에 객체없이 어디에서든 사용가능하다.
 	currentPath = PathFindManager::FindPath(map, GetPosition(), playerPos);
 	pathIndex = 0;
+	rePathTimer = 0.0f; // 타이머 초기화.
 }
 
 void Enemy::OnHearNoise(Vector2 location, float intensity)
 {
 	// 소음수치를 어그로 게이치에 중첩시킴.
 	aggroGauge += intensity;
+	
+	// 이미 화난 상태라면 게이지 수치에 상관없이 추격 유지.
+	if (state == EnemyState::ANGRY) return;
 
-	// 어그로 게이지가 임계치를 넘을 경우 경로 탐색 요청.
-	if (aggroGauge >= guageThreshold)
+	// 어그로 게이지가 임계치를 넘을 경우 경로 탐색 요청.(게이지가 넘었을 때만 최초 1회 경로 탐색 수행.)
+	if (aggroGauge >= guageThreshold && state != EnemyState::ANGRY)
 	{
-		
 		state = EnemyState::ANGRY;
+		RequestNewPath(); // 상태가 바뀔 때만 즉시 경로 갱신.
 	}
 	else if (aggroGauge > 35)
 	{

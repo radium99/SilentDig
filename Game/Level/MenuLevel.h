@@ -54,10 +54,10 @@ private:
 	int currentIndex = 0;
 
 	// 선택된 아이템의 색상.
-	Color selectedColor = Color::Green;
+	Color selectedColor = Color::GREEN;
 
 	// 선택되지 않은 아이템의 색상.
-	Color unselectedColor = Color::White;
+	Color unselectedColor = Color::WHITE;
 
 	// 메뉴 아이템 배열.
 	std::vector<MenuItem*> items;

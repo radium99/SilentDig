@@ -33,7 +33,7 @@ void SokobanLevel::Draw()
 	{
 		// 콘솔 위치/색상 설정.
 		Util::SetConsolePosition(Vector2(30, 0));
-		Util::SetConsoleTextColor(Color::White);
+		Util::SetConsoleTextColor(Color::WHITE);
 
 		// 게임 클리어 메시지 출력.
 		std::cout << "Game Clear!";

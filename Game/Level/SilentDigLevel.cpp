@@ -74,7 +74,6 @@ void SilentDigLevel::NotifyNoiseToEnemies(Vector2 noisePos, float intensity)
 			}
 		}
 	}
-	//const std::vector<Actor*> tempActors = GetActors();
 }
 
 TileType SilentDigLevel::GetTileAt(int x, int y) const
@@ -172,8 +171,8 @@ void SilentDigLevel::Draw()
 	{
 		for (int x = 0; x < mapWidth; ++x)
 		{
-			const char* symbol = (map[y][x] == TileType::Wall) ? "#" : "."; // 확장 가능성: Wall말고 뚫리지 않는 TileType 추가 가능.
-			Color color = (map[y][x] == TileType::Wall) ? Color::White : Color::Maganta;
+			const char* symbol = (map[y][x] == TileType::Wall) ? "#" : " "; // 확장 가능성: Wall말고 뚫리지 않는 TileType 추가 가능.
+			Color color = (map[y][x] == TileType::Wall) ? Color::DARKYELLOW : Color::BLACK;
 			
 			// Renderer::Draw()가 내부적으로 카메라 변환을 수행하므로, 세상 좌표만 넘김
 			Wanted::Renderer::Get().Submit(symbol, Vector2((float)x, (float)y), color, -1);

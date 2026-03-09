@@ -1,15 +1,15 @@
-#include "MenuLevel.h"
+#include "MainMenu.h"
 #include "Game/Game.h"
 #include "Core/Input.h"
 #include "Util/Util.h"
 #include "Render/Renderer.h"
 #include <iostream>
 
-MenuLevel::MenuLevel()
+MainMenu::MainMenu()
 {
 	// 메뉴 아이템 생성.
 	items.emplace_back(new MenuItem(
-		"Resume Game",
+		"Start Game",
 		[]()
 		{
 			// 메뉴 토글 함수 호출.
@@ -27,7 +27,7 @@ MenuLevel::MenuLevel()
 	));
 }
 
-MenuLevel::~MenuLevel()
+MainMenu::~MainMenu()
 {
 	// 메뉴 아이템 제거.
 	for (MenuItem*& item : items)
@@ -40,7 +40,7 @@ MenuLevel::~MenuLevel()
 	items.clear();
 }
 
-void MenuLevel::Tick(float deltaTime)
+void MainMenu::Tick(float deltaTime)
 {
 	super::Tick(deltaTime);
 
@@ -75,7 +75,7 @@ void MenuLevel::Tick(float deltaTime)
 	}
 }
 
-void MenuLevel::Draw()
+void MainMenu::Draw()
 {
 	// 메뉴 제목 출력.
 	//Util::SetConsolePosition(Vector2::Zero);
