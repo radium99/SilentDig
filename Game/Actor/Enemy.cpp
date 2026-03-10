@@ -15,7 +15,7 @@ Enemy::Enemy(const Vector2& position)
 	sortingOrder = 11;
 
 	lookDir = Vector2(0,1); 
-	viewDistance = 10.0f; // 시야 거리 10칸.
+	viewDistance = 3.0f; // 시야 거리 10칸.
 	viewAngle = 90.0f;
 }
 
@@ -40,7 +40,8 @@ void Enemy::Tick(float deltaTime)
 			break;
 		case EnemyState::ANGRY:
 			// 이미 경로가 있고 아직 이동 중인 경우 새로운 경로 요청 x.
-			if ( currentPath.empty() || pathIndex >= currentPath.size()) //
+			// 경로가 있고, 현재 경로를 모두 이동한 경우.
+			if ( currentPath.empty() || pathIndex >= currentPath.size()) // 
 			{
 				auto* level = dynamic_cast<SilentDigLevel*>(GetOwner());
 				if (level) {
@@ -87,9 +88,9 @@ void Enemy::Tick(float deltaTime)
 void Enemy::Draw()
 {
 	Actor::Draw();
-	if (state == EnemyState::IDLE) { color = Color::BLUE; }
-	if (state == EnemyState::SUSPICIOUS) { color = Color::YELLOW; }
-	if (state == EnemyState::ANGRY) { color = Color::RED; }
+	if (state == EnemyState::IDLE) { color = Color::BGYELLOWDARKBLUE; }
+	if (state == EnemyState::SUSPICIOUS) { color = Color::BGYELLOWDARKRED; }
+	if (state == EnemyState::ANGRY) { color = Color::BGYELLOWRED;}
 
 	// 경로 시각화.
 	// 시각화 활성화 && 현재 경로가 존재한 경우.
@@ -97,7 +98,7 @@ void Enemy::Draw()
 	{
 		for (int i = pathIndex; i < currentPath.size(); ++i)
 		{
-			Renderer::Get().Submit("*", currentPath[i], Wanted::Color::DARKRED, 20);
+			Renderer::Get().Submit("*", currentPath[i], Wanted::Color::BGYELLOWDARKRED, 13);
 		}
 	}
 }
@@ -141,7 +142,7 @@ void Enemy::OnHearNoise(Vector2 location, float intensity)
 	if (state == EnemyState::ANGRY)
 	{
 		// 소음 방향으로 경로 최신화.
-		if (intensity > 30.0f)
+		if (intensity)
 		{
 			RequestNewPath();
 			return;

@@ -80,9 +80,22 @@ void BSPGenerator::Split(Region* node, int iter)
 void BSPGenerator::CreateRoom(Region* node)
 {
     // 방 크기 결정 (영역보다 약간 작게, 최소 3x3 보장)
-    int minW = max(2, node->width / 2);
-    int minH = max(2, node->height / 2);
-    
+    //int minW = max(3 , node->width / 2);
+    //int minH = max(3, node->height / 2);
+    int minW = 3;
+    int minH = 3;
+
+    // 영역 크기가 최소 방 크기보다 큰지 확인.
+    if (node->width <= minW || node->height <= minH)
+    {
+        // 영역이 너무 작으면 방을 안만들거나 영역을 꽉 채움.
+        node->roomW = node->width;
+        node->roomH = node->height;
+        node->roomX = node->x;
+        node->roomY = node->y;
+        return;
+    }
+
     node->roomW = minW + (rand() % (node->width - minW));
     node->roomH = minH + (rand() % (node->height - minH));
 

@@ -7,6 +7,7 @@
 #include "../Actor/Enemy.h"
 #include "../Engine/Core/Input.h"
 #include "../Config/Setting.h" // 경로 시각화 옵션.
+#include "Game/Game.h"
 
 //#include "../../Engine/Util/Util.h"// 게임 클리어 관련 (참고. 템플릿 재정의 오류 발생하는 코드임.)
 //#include <iostream> // 게임 클리어 관련
@@ -27,6 +28,7 @@ void SilentDigLevel::BeginPlay()
 	{
 		// Todo: 다시 도전하겠냐는 문구 씬 있어야 함.
 	}
+
 }
 
 bool SilentDigLevel::CanMove(const Wanted::Vector2& playerPosition, const Wanted::Vector2& nextPosition)
@@ -97,8 +99,9 @@ void SilentDigLevel::CreateWorld()
 	mapHeight = 60;
 	map.assign(mapHeight, std::vector<TileType>(mapWidth, TileType::Wall));
 
-	BSPGenerator bsp(8);
-	bsp.Generate(mapWidth, mapHeight, 3);
+	// BSP 생성.
+	BSPGenerator bsp(3);
+	bsp.Generate(mapWidth, mapHeight, 4);
 	
 	// 빈 방 생성.
 	bsp.CreateEmptyRoom(map);
@@ -151,7 +154,7 @@ void SilentDigLevel::Tick(float deltaTime)
 bool SilentDigLevel::IsWalkable(int x, int y) const
 {
 	// 영역 처리.
-	if (mapWidth < x || mapHeight < y || x < 0 || y < 0)
+	if (mapWidth <= x || mapHeight <= y || x < 0 || y < 0)
 	{
 		return false;
 	}
@@ -218,8 +221,8 @@ void SilentDigLevel::Draw()
 	{
 		for (int x = 0; x < mapWidth; ++x)
 		{
-			const char* symbol = (map[y][x] == TileType::Wall) ? "#" : " "; // 확장 가능성: Wall말고 뚫리지 않는 TileType 추가 가능.
-			Color color = (map[y][x] == TileType::Wall) ? Color::DARKYELLOW : Color::BLACK;
+			const char* symbol = (map[y][x] == TileType::Wall) ? " " : " "; // 확장 가능성: Wall말고 뚫리지 않는 TileType 추가 가능.
+			Color color = (map[y][x] == TileType::Wall) ? Color::YELLOWANDBGDARKYELLOW : Color::BGYELLOW;// DARKYELLOWANDBGGRAY
 			
 			// Renderer::Draw()가 내부적으로 카메라 변환을 수행하므로, 세상 좌표만 넘김
 			Wanted::Renderer::Get().Submit(symbol, Vector2((float)x, (float)y), color, -1);
@@ -234,7 +237,7 @@ void SilentDigLevel::Draw()
 	if (isPlayerDead)
 	{
 		// 플레이어 죽음 메시지 Renderer에 제출.
-		Renderer::Get().Submit("!Dead!", playerDeadPosition);
+		Renderer::Get().Submit("X", playerDeadPosition, Color::GREEN, 15);
 
 		// 점수 보여주기.
 		ShowScore();
@@ -249,27 +252,30 @@ void SilentDigLevel::Draw()
 		//Engine::Get().QuitEngine();
 	}
 
+	// 정상까지 도달한 경우. (게임 완전 클리어)
+	if (isGameClear && floor >= maxFloor)
+	{
+		// Todo: 엔딩 화면. 
+		DestroyActors();
+		Game::Get().ChangeLevel(State::Clear);
+		isGameClear = false;
+			
+	}
 	// 게임 클리어인 경우. 메시지 출력.
-	if (isGameClear)
+	else if (isGameClear)
 	{
 		floor++;
-		
+
 		CreateWorld();
 		isGameClear = false;
-		
-		// 정상까지 도달한 경우. (게임 완전 클리어)
-		if (floor >= 2)
-		{
-			// Todo: 엔딩 화면. 
-			
-		}
+	}
 		// 콘솔 위치/색상 설정.
 		//Util::SetConsolePosition(Vector2(30, 0));
 		//Util::SetConsoleTextColor(Color::WHITE);
 
 		// 게임 클리어 메시지 출력.
 		//std::cout << "Game Clear!";
-	}
+	
 }
 
 
@@ -369,10 +375,14 @@ void SilentDigLevel::DestroyActors()
 
 void SilentDigLevel::ShowScore()
 {
-	sprintf_s(floorString, 128, "%d F", floor);
+	sprintf_s(floorString, 128, "%dF", floor);
+	// isUI 파라미터를 true로 설정하여 화면 절대 좌표 (0, 0)에 고정
 	Renderer::Get().Submit(
 		floorString,
-		Vector2(0, Engine::Get().GetHeight() + 50)
+		Vector2(0, 0),
+		Color::WHITE,
+		100,
+		true
 	);
 }
 

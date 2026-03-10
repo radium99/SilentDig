@@ -12,6 +12,7 @@ enum class State
 	MainMenu = 0,
 	GamePlay = 1,
 	Menu = 2,
+	Clear = 3,
 	Length
 };
 
@@ -25,6 +26,7 @@ public:
 	void ToggleMenu();
 
 	static Game& Get();
+	void ChangeLevel(const State& state);
 
 private:
 	// 게임에서 관리하는 레벨을 저장할 배열.

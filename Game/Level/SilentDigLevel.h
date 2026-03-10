@@ -79,7 +79,8 @@ private:
 	// 게임을 클리어 했는지 확인.
 	bool isGameClear = false;
 
-	int floor = 1; // 던전 층 변수.
+	int floor = 1; // 현재 던전 층 변수.
+	int maxFloor = 1; // 마지막 층 설정 변수.
 
 	// 층 문자열.
 	char floorString[128];

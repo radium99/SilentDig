@@ -3,7 +3,7 @@
 #include "Level/SilentDigLevel.h"
 #include "Level/MenuLevel.h"
 #include "Level/MainMenu.h"
-
+#include "Level/ClearLevel.h"
 #include <iostream>
 
 // 정적 변수 초기화.
@@ -17,6 +17,7 @@ Game::Game()
 	levels.emplace_back(new MainMenu());
 	levels.emplace_back(new SilentDigLevel());
 	levels.emplace_back(new MenuLevel());
+	levels.emplace_back(new ClearLevel());
 
 	// 시작 상태(레벨) 설정.
 	//state = State::GamePlay;
@@ -42,6 +43,10 @@ Game::~Game()
 	// 배열 정리.
 	levels.clear();
 }
+void Game::ChangeLevel(const State& state)
+{
+	mainLevel = levels[static_cast<int>(state)];
+}
 
 void Game::ToggleMenu()
 {
@@ -61,6 +66,8 @@ void Game::ToggleMenu()
 	case State::Menu:
 		state = State::GamePlay;
 		break;
+	case State::Clear:
+		state = State::MainMenu;
 	}
 
 	// 변경할 인덱스 계산.
@@ -72,7 +79,8 @@ void Game::ToggleMenu()
 	//state = (State)nextState;		// static_cast.
 
 	// 메인 레벨 변경.
-	mainLevel = levels[static_cast<int>(state)];
+	ChangeLevel(state);
+	//mainLevel = levels[static_cast<int>(state)];
 }
 
 Game& Game::Get()

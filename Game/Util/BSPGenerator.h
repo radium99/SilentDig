@@ -74,5 +74,6 @@ private:
 
 	Region* root = nullptr;
 	int minSize;
+
 	std::vector<Region*> leafRegions; // 최종적으로 방이 생성될 구역들
 };
