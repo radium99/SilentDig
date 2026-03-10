@@ -101,6 +101,7 @@ xcopy $(OutDir)\Engine.lib ..\Library\Engine\$(Platform)\$(Configuration)\ /e /y
     <ClCompile Include="Engine\Engine.cpp" />
     <ClCompile Include="Level\Level.cpp" />
     <ClCompile Include="Math\Vector2.cpp" />
+    <ClCompile Include="Render\EffectManager.cpp" />
     <ClCompile Include="Render\Renderer.cpp" />
     <ClCompile Include="Render\ScreenBuffer.cpp" />
   </ItemGroup>
@@ -109,6 +110,7 @@ xcopy $(OutDir)\Engine.lib ..\Library\Engine\$(Platform)\$(Configuration)\ /e /y
     <ClInclude Include="Common\Common.h" />
     <ClInclude Include="Common\RTTI.h" />
     <ClInclude Include="Core\Input.h" />
+    <ClInclude Include="Render\EffectManager.h" />
     <ClInclude Include="Render\Renderer.h" />
     <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Level\Level.h" />

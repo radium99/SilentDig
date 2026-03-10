@@ -40,10 +40,29 @@ void Enemy::Tick(float deltaTime)
 			break;
 		case EnemyState::ANGRY:
 			// 이미 경로가 있고 아직 이동 중인 경우 새로운 경로 요청 x.
-			if (currentPath.empty() || pathIndex >= currentPath.size())
+			if ( currentPath.empty() || pathIndex >= currentPath.size()) //
 			{
-				// 경로 요청.
-				RequestNewPath();
+				auto* level = dynamic_cast<SilentDigLevel*>(GetOwner());
+				if (level) {
+					if (CanSeePlayer(level->GetPlayerPosition(), *level))
+					{
+						// 경로 요청.
+						RequestNewPath();
+					}
+					else
+					{
+						// 의심 상태로 설정할 경우.
+						state = EnemyState::SUSPICIOUS;
+						aggroGauge = 50.f;
+						pathIndex = 0;
+						currentPath.clear();
+						// IDLE상태로 설정할 경우.
+						/*state = EnemyState::IDLE;
+						aggroGauge = 0.0f;
+						pathIndex = 0;
+						currentPath.clear();*/
+					}
+				}
 			}
 
 			// 5. 경로를 한 칸씩 읽으며 이동.
@@ -52,52 +71,14 @@ void Enemy::Tick(float deltaTime)
 				Vector2 nextPos = currentPath[pathIndex];
 				Vector2 currentPos = GetPosition();
 
-				lookDir = nextPos - currentPos;
-				lookDir.Normalize();
+				lookDir = (nextPos - currentPos).Normalize();
 				SetPosition(currentPath[pathIndex]);
 				pathIndex++;    
 			
 			}
 			
 		}
-		
-		
-		//if (currentPath.empty() || pathIndex >= currentPath.size())
-		//{
-		//	RequestNewPath();
-		//}
 
-		// 5. 경로를 한 칸씩 읽으며 이동.
-		//if (pathIndex < currentPath.size())
-		//{
-		//	SetPosition(currentPath[pathIndex]);
-		//	pathIndex++;
-		//}
-		
-		// 
-	
-
-		//int direction = rand() % 4;
-		//Wanted::Vector2 nextPos = GetPosition();
-
-		//switch (direction)
-		//{
-		//case 0: nextPos.y -= 1; break;
-		//case 1: nextPos.y += 1; break;
-		//case 2: nextPos.x -= 1; break;
-		//case 3: nextPos.x += 1; break;
-		//}
-
-		//// 충돌 체크 (범위 검사 포함)
-		//if (GetOwner())
-		//{
-		//	auto* moveInterface = dynamic_cast<ICanPlayerMove*>(GetOwner());
-
-		//	if (moveInterface && moveInterface->CanMove(GetPosition(), nextPos))
-		//	{
-		//		SetPosition(nextPos);
-		//	}
-		//}
 	}
 
 }
@@ -155,8 +136,16 @@ void Enemy::OnHearNoise(Vector2 location, float intensity)
 	// 소음수치를 어그로 게이치에 중첩시킴.
 	aggroGauge += intensity;
 	
-	// 이미 화난 상태라면 게이지 수치에 상관없이 추격 유지.
-	if (state == EnemyState::ANGRY) return;
+	// 이미 화난 상태라면 상태 강등은 막되, 강한 소음이 들리며 경로만 갱신.
+	if (state == EnemyState::ANGRY)
+	{
+		// 소음 방향으로 경로 최신화.
+		if (intensity > 30.0f)
+		{
+			RequestNewPath();
+			return;
+		}
+	}
 
 	// 어그로 게이지가 임계치를 넘을 경우 경로 탐색 요청.(게이지가 넘었을 때만 최초 1회 경로 탐색 수행.)
 	if (aggroGauge >= guageThreshold && state != EnemyState::ANGRY)

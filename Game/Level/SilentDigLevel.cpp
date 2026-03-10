@@ -1,11 +1,15 @@
 #include "SilentDigLevel.h"
 #include "Render/Renderer.h"
+#include "../Actor/Target.h"
 #include "../Actor/Player.h"
 #include "../Actor/Wall.h"
 #include "../Actor/Ground.h"
 #include "../Actor/Enemy.h"
 #include "../Engine/Core/Input.h"
 #include "../Config/Setting.h" // 경로 시각화 옵션.
+//#include "../../Engine/Util/Util.h"// 게임 클리어 관련 (참고. 템플릿 재정의 오류 발생하는 코드임.)
+//#include <iostream> // 게임 클리어 관련
+
 //#include "../Engine/Engine/Engine.h"
 
 void SilentDigLevel::BeginPlay()
@@ -49,6 +53,7 @@ bool SilentDigLevel::CanMove(const Wanted::Vector2& playerPosition, const Wanted
 		// Todo: 확률적으로 소음 발생로직.
 		if (rand() % 100 < 50)
 		{
+			EffectManager::Get().TriggerShake(1.0f, 0.1f);
 			NotifyNoiseToEnemies(Vector2(x, y), 50.0f);
 		}
 		
@@ -108,6 +113,7 @@ void SilentDigLevel::CreateWorld()
 	}
 
 	SpawnEnemy(bsp, Wanted::Vector2(0, 0)); // Todo: 현재는 플레이어 위치를 가져오지 않고, 하드 코딩으로 0,0 전달하므로 플레이어 위치바꿔야 함.
+	SpawnStair(bsp, Wanted::Vector2(0, 0));
 }
 
 void SilentDigLevel::Tick(float deltaTime)
@@ -130,7 +136,11 @@ void SilentDigLevel::Tick(float deltaTime)
 		GameSettings::ShowPath = !GameSettings::ShowPath;
 	}
 
+	// 플레이어와 적 충돌 확인.
 	ProcessCollisionEnemyAndPlayer();
+
+	// 플레이어가 계단에 도착했는지 확인.
+	IsPlayerGoalIn();
 }
 
 
@@ -161,11 +171,33 @@ void SilentDigLevel::SpawnEnemy(BSPGenerator& bsp, const Wanted::Vector2& player
 	}
 
 }
+
+void SilentDigLevel::SpawnStair(BSPGenerator& bsp, const Wanted::Vector2& playerPos)
+{
+	const auto& leafRegions = bsp.GetLeafRegions();
+	if (leafRegions.size() > 1) {
+
+		// 현재 플레이어는 0번째 인덱스 구역에서 생성되므로 0번째 구역을 제외한 랜덤 구역을 설정. -> 해당 구역 내 계단 생성.
+		int randomIndex = 1 + (rand() % (leafRegions.size() - 1));
+		auto* TargetRegion = leafRegions[randomIndex];
+
+		float spawnX = (float)TargetRegion->roomX + (TargetRegion->roomW / 2.0f);
+		float spawnY = (float)TargetRegion->roomY + (TargetRegion->roomH / 2.0f);
+
+		AddNewActor(new Target(Wanted::Vector2(spawnX, spawnY)));
+
+	}
+
+}
+
+
 void SilentDigLevel::Draw()
 {
 	if (map.empty()) return;
 	Vector2 screenSize = Wanted::Renderer::Get().GetScreenSize();
 	Vector2 camPos = Wanted::Renderer::Get().GetCameraPosition();
+
+
 	// 1. 맵 직접 렌더링 (순수 세상 좌표만 전달)
 	for (int y = 0; y < mapHeight; ++y)
 	{
@@ -198,6 +230,27 @@ void SilentDigLevel::Draw()
 
 		// 게임 종료.
 		//Engine::Get().QuitEngine();
+	}
+
+	// 게임 클리어인 경우. 메시지 출력.
+	if (isGameClear)
+	{
+		floor++;
+		
+		CreateWorld();
+		isGameClear = false;
+		
+		// 정상까지 도달한 경우. (게임 완전 클리어)
+		if (floor >= 2)
+		{
+			// Todo: 엔딩 화면. 
+		}
+		// 콘솔 위치/색상 설정.
+		//Util::SetConsolePosition(Vector2(30, 0));
+		//Util::SetConsoleTextColor(Color::WHITE);
+
+		// 게임 클리어 메시지 출력.
+		//std::cout << "Game Clear!";
 	}
 }
 
@@ -243,6 +296,57 @@ void SilentDigLevel::ProcessCollisionEnemyAndPlayer()
 			break;
 		}
 	}   
+
+
+}
+
+void SilentDigLevel::IsPlayerGoalIn()
+{
+	// 멤버 변수 player가 없거나 이미 죽었으면 처리할 필요 없음.
+	if (!player || isPlayerDead)
+	{
+		return;
+	}
+
+	// 초기화.
+	Actor* stair = nullptr;
+
+	// 타겟만 필터링.(목적지)
+	for (Actor* const actor : actors)
+	{
+		if (actor->IsTypeOf<Target>())
+		{
+			stair = actor;
+
+		}
+	}
+
+	if (stair == nullptr)
+	{
+		return;
+	}
+
+	// 충돌 판정.
+	// 멤버 변수 player와 충돌 검사
+	if (stair->TestIntersect(player))
+	{
+		DestroyActors();
+		isGameClear = true;
+	}
+
+
+
+}
+
+void SilentDigLevel::DestroyActors()
+{
+	for (Actor* actor : actors) {
+		actor->Destroy();
+		if (actor == player)
+		{
+			player = nullptr;
+		}
+	}
 }
 
 bool SilentDigLevel::IsPlayerDead()

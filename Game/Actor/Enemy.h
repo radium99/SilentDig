@@ -45,10 +45,10 @@ private:
 	int pathIndex = 0;
 
 	float moveTimer = 0.0f; // 이동 타이머 관련 변수.
-	float moveInterval = 0.2f; // 일정 간격으로 한 번씩 이동 설정 변수.
+	float moveInterval = 0.1f; // 일정 간격으로 한 번씩 이동 설정 변수.
 
 	float rePathTimer = 0.0f;
-	float rePathInterval = 2.0f;
+	float rePathInterval = 1.0f;
 
 	// 몹의 상태. (기본 상태로 초기화)
 	EnemyState state = EnemyState::IDLE;

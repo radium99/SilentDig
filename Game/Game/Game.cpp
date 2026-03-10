@@ -19,10 +19,12 @@ Game::Game()
 	levels.emplace_back(new MenuLevel());
 
 	// 시작 상태(레벨) 설정.
-	state = State::GamePlay;
+	//state = State::GamePlay;
+	state = State::MainMenu;
 
 	// 게임 시작 시 활성화할 레벨 설정.
 	mainLevel = levels[0];
+
 }
 
 Game::~Game()
@@ -48,13 +50,26 @@ void Game::ToggleMenu()
 	// cls -> clear screen.
 	system("cls");
 
+	switch(state)
+	{
+	case State::MainMenu:
+		state = State::GamePlay;
+		break;
+	case State::GamePlay:
+		state = State::Menu;
+		break;
+	case State::Menu:
+		state = State::GamePlay;
+		break;
+	}
+
 	// 변경할 인덱스 계산.
 	// 현재 활성 레벨 인덱스가 1이면 -> 0으로.
 	// 현재 활성 레벨 인덱스가 0이면 -> 1로.
 	// 마법의 공식 - (1-x) -> OneMinus
-	int stateIndex = (int)state;	// static_cast.
-	int nextState = 1 - stateIndex;	// one - x.
-	state = (State)nextState;		// static_cast.
+	//int stateIndex = (int)state;	// static_cast.
+	//int nextState = 1 - stateIndex;	// one - x.
+	//state = (State)nextState;		// static_cast.
 
 	// 메인 레벨 변경.
 	mainLevel = levels[static_cast<int>(state)];

@@ -4,6 +4,7 @@
 #include "Math/Color.h"
 #include <Windows.h>
 #include <vector>
+#include "EffectManager.h" // 진동 효과를 위함.
 
 namespace Wanted
 {
@@ -32,7 +33,7 @@ namespace Wanted
 		Renderer(const Vector2& screenSize);
 		~Renderer();
 
-		void Draw();
+		void Draw(float deltaTime);
 		void Submit(const char* text, const Vector2& position, Color color = Color::WHITE, int sortingOrder = 0);
 
 		static Renderer& Get();

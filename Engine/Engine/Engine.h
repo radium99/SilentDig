@@ -56,7 +56,7 @@ namespace Wanted
 		void Tick(float deltaTime);
 
 		// 그리기 함수. (Draw/Render).
-		void Draw();
+		void Draw(float deltaTime);
 
 	protected:
 		// 엔진 종료 플래그.

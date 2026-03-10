@@ -40,6 +40,15 @@ public:
 
 	bool IsPlayerDead();
 
+	// 탈출 계단 생성 함수.
+	void SpawnStair(BSPGenerator& bsp, const Wanted::Vector2& playerPos);
+
+	// 플레이어와 계단 충돌 감지 및 처리 함수.
+	void IsPlayerGoalIn();
+
+	// 다음 층 이동 전, 기존 액터들 삭제 처리 함수.
+	void DestroyActors();
+
 private:
 	// BSP 활용 맵 생성 함수.
 	void CreateWorld();
@@ -64,4 +73,9 @@ private:
 	bool isPlayerDead = false;
 
 	bool hasCreateWorld = false;
+
+	// 게임을 클리어 했는지 확인.
+	bool isGameClear = false;
+
+	int floor = 1; // 던전 층 변수.
 };

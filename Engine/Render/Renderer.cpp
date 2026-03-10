@@ -82,10 +82,18 @@ namespace Wanted
 		}
 	}
 
-	void Renderer::Draw()
+	void Renderer::Draw(float deltaTime)
 	{
 		// 화면 지우기.
 		Clear();
+
+		// 진동 오프셋 계산 (EffectiveManager에서 가져옴)
+		// deltaTime은 엔진에서 관리하는 값을 사용하거나 인자로 받아야 한다.
+		Vector2 shakeOffset = EffectManager::Get().GetShakeOffset(deltaTime);
+
+		// 진동이 적용된 임시 카메라 위치 계산.
+		// 원본 카메라 위치는 유지. 이번 프레임 렌더링만 shakeOffset 더함.
+		Vector2 effecttiveCamPos = cameraPosition - shakeOffset;
 
 		// 화면 중심 오프셋 계산 (카메라 위치가 화면의 정중앙이 되도록)
 		Vector2 screenCenter(screenSize.x / 2, screenSize.y / 2);
@@ -94,7 +102,8 @@ namespace Wanted
 		{
 			if (!command.text) continue;
 			// 월드 좌표 - 카메라 좌표 + 화면 중심 오프셋 = 화면 상대좌표 계산
-			Vector2 screenPos = command.position - cameraPosition + screenCenter;
+			//Vector2 screenPos = command.position - cameraPosition + screenCenter;
+			Vector2 screenPos = command.position - effecttiveCamPos + screenCenter; // 기존 cameraPosition에서 effectiveCamPos로 수정.
 
 			// 화면 밖 y축 클램핑 체크 ( screen 기준으로 변경)
 			if (screenPos.y < 0 || screenPos.y >= screenSize.y)
@@ -130,75 +139,6 @@ namespace Wanted
 			// Todo: 이후 그리는 로직은 screenPos를 사용하여 진행.
 		}
 
-		// 전제조건: 레벨의 모든 액터가 렌더러에 Submit을 완료.
-		// 렌더큐 순회하면서 프레임 채우기.
-		//for (const RenderCommand& command : renderQueue)
-		//{
-		//	// 화면에 그릴 텍스트가 없으면 건너뜀.
-		//	if (!command.text)
-		//	{
-		//		continue;
-		//	}
-
-		//	// 세로 기준 화면 벗어났는지 확인.
-		//	if (command.position.y < 0
-		//		|| command.position.y >= screenSize.y)
-		//	{
-		//		continue;
-		//	}
-
-		//	// 화면에 그릴 문자열 길이.
-		//	const int length = static_cast<int>(strlen(command.text));
-
-		//	// 안그려도 되면 건너뜀.
-		//	if (length <= 0)
-		//	{
-		//		continue;
-		//	}
-
-		//	// x좌표 기준으로 화면에서 벗어났는지 확인.
-		//	// 위치는 왼쪽 기준: "abcde"
-		//	const int startX = command.position.x;
-		//	const int endX = command.position.x + length - 1;
-
-		//	if (endX < 0 || startX >= screenSize.x)
-		//	{
-		//		continue;
-		//	}
-
-		//	// 시작 위치.
-		//	const int visibleStart = startX < 0 ? 0 : startX;
-		//	const int visibleEnd
-		//		= endX >= screenSize.x ? screenSize.x - 1 : endX;
-
-		//	// 문자열 설정.
-		//	for (int x = visibleStart; x <= visibleEnd; ++x)
-		//	{
-		//		// 문자열 안의 문자 인덱스.
-		//		const int sourceIndex = x - startX;
-
-		//		// 프레임 (2차원 문자 배열) 인덱스.
-		//		const int index
-		//			= (command.position.y * screenSize.x) + x;
-
-		//		// 그리기 우선순위 비교.
-		//		if (frame->sortingOrderArray[index]
-		//			> command.sortingOrder)
-		//		{
-		//			continue;
-		//		}
-
-		//		// 데이터 기록.
-		//		frame->charInfoArray[index].Char.AsciiChar
-		//			= command.text[sourceIndex];
-		//		frame->charInfoArray[index].Attributes
-		//			= (WORD)command.color;
-
-		//		// 우선순위 업데이트.
-		//		frame->sortingOrderArray[index]
-		//			= command.sortingOrder;
-		//	}
-		//}
 
 		// 그리기.
 		GetCurrentBuffer()->Draw(frame->charInfoArray);

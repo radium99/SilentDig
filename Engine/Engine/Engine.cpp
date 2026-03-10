@@ -96,7 +96,7 @@ namespace Wanted
 				// 프레임 처리.
 				BeginPlay();
 				Tick(deltaTime);
-				Draw();
+				Draw(deltaTime);
 
 				// 이전 시간 값 갱신.
 				previousTime = currentTime;
@@ -252,7 +252,7 @@ namespace Wanted
 		mainLevel->Tick(deltaTime);
 	}
 
-	void Engine::Draw()
+	void Engine::Draw(float deltaTime)
 	{
 		// 레벨에 이벤트 흘리기.
 		// 예외처리.
@@ -266,6 +266,6 @@ namespace Wanted
 		mainLevel->Draw();
 
 		// 렌더러에 그리기 명령 전달.
-		renderer->Draw();
+		renderer->Draw(deltaTime);
 	}
 }
