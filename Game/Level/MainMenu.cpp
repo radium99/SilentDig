@@ -84,7 +84,7 @@ void MainMenu::Draw()
 	//// 텍스트 출력.
 	//std::cout << "Sokoban Game\n\n";
 
-	Renderer::Get().Submit("Silent Dig Game", Vector2::Zero);
+	Renderer::Get().Submit("Silent Dig Game", Vector2::Zero, Color::DARKYELLOW);
 
 	// 메뉴 아이템 출력.
 	for (int ix = 0; ix < static_cast<int>(items.size()); ++ix)

@@ -56,8 +56,25 @@ std::vector<Wanted::Vector2> AStar::FindPath(const Wanted::Vector2& startPos, co
 
 		for (const auto& dir : directions)
 		{
-			int nextX = (int)currentNode->position.x + dir.x;
-			int nextY = (int)currentNode->position.y + dir.y;
+			int curX = (int)currentNode->position.x;
+			int curY = (int)currentNode->position.y;
+			int nextX = curX + dir.x;
+			int nextY = curY + dir.y;
+
+			// 대각 장애물 이동 불가 처리 (4방향 체크: 왼 외각 위, 오른 대각 위, 왼 대각 아래, 오른 대각 아래)
+			// 대각선 이동인 경우에만 체크 (x와 y가 둘 다 변했다면 대각선임)
+			if (dir.x != 0 && dir.y != 0)
+			{
+				// 이동하려는 칸의 양옆(길목)이 모두 막혀 있는지 확인
+				// 현재 위치(curX, curY) 기준으로 x축 인접칸과 y축 인접칸을 검사
+				
+				if (!map.IsWalkable(curX + dir.x, curY) && !map.IsWalkable(curX, curY + dir.y))
+				{
+					continue; // 길목이 막혔으면 이동 불가.
+				}
+
+			}
+
 
 			if (!IsInRange(nextX, nextY, map) || !map.IsWalkable(nextX, nextY))
 				continue;

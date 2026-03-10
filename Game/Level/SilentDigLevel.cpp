@@ -7,6 +7,7 @@
 #include "../Actor/Enemy.h"
 #include "../Engine/Core/Input.h"
 #include "../Config/Setting.h" // 경로 시각화 옵션.
+
 //#include "../../Engine/Util/Util.h"// 게임 클리어 관련 (참고. 템플릿 재정의 오류 발생하는 코드임.)
 //#include <iostream> // 게임 클리어 관련
 
@@ -51,10 +52,13 @@ bool SilentDigLevel::CanMove(const Wanted::Vector2& playerPosition, const Wanted
 		map[y][x] = TileType::Empty; //effective c++ 관점에서 맞지 않음. (쿼리와 커멘드를 구분하자.)
 		
 		// Todo: 확률적으로 소음 발생로직.
-		if (rand() % 100 < 50)
+		if (rand() % 100 < 10)
 		{
 			EffectManager::Get().TriggerShake(1.0f, 0.1f);
-			NotifyNoiseToEnemies(Vector2(x, y), 50.0f);
+			NotifyNoiseToEnemies(Vector2(x, y), 70.0f);
+		}
+		else {
+			NotifyNoiseToEnemies(Vector2(x, y), 40.0f);
 		}
 		
 			//이동 못함.
@@ -144,6 +148,17 @@ void SilentDigLevel::Tick(float deltaTime)
 }
 
 
+bool SilentDigLevel::IsWalkable(int x, int y) const
+{
+	// 영역 처리.
+	if (mapWidth < x || mapHeight < y || x < 0 || y < 0)
+	{
+		return false;
+	}
+
+	return map[y][x] != TileType::Wall;
+}
+
 Wanted::Vector2 SilentDigLevel::GetPlayerPosition() const
 {
 	if (player != nullptr) {
@@ -214,13 +229,15 @@ void SilentDigLevel::Draw()
 	// 2. 액터들 그리기
 	Level::Draw();
 
+	ShowScore();
+
 	if (isPlayerDead)
 	{
 		// 플레이어 죽음 메시지 Renderer에 제출.
 		Renderer::Get().Submit("!Dead!", playerDeadPosition);
 
 		// 점수 보여주기.
-		//ShowScore();
+		ShowScore();
 
 		// 화면에 바로 표시.
 		//Renderer::Get().PresentImmediately();
@@ -244,6 +261,7 @@ void SilentDigLevel::Draw()
 		if (floor >= 2)
 		{
 			// Todo: 엔딩 화면. 
+			
 		}
 		// 콘솔 위치/색상 설정.
 		//Util::SetConsolePosition(Vector2(30, 0));
@@ -347,6 +365,15 @@ void SilentDigLevel::DestroyActors()
 			player = nullptr;
 		}
 	}
+}
+
+void SilentDigLevel::ShowScore()
+{
+	sprintf_s(floorString, 128, "%d F", floor);
+	Renderer::Get().Submit(
+		floorString,
+		Vector2(0, Engine::Get().GetHeight() + 50)
+	);
 }
 
 bool SilentDigLevel::IsPlayerDead()

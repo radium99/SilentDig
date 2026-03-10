@@ -4,6 +4,7 @@
 #include <vector>
 #include "Util/BSPGenerator.h"
 #include "Interface/IMapPathfinder.h"
+#include "Engine/Engine.h"
 
 namespace Wanted { class Actor; }
 
@@ -24,9 +25,7 @@ public:
 	virtual TileType GetTileAt(int x, int y) const override;
 	virtual int GetWidth() const override { return mapWidth; }
 	virtual int GetHeight() const override { return mapHeight; }
-	virtual bool IsWalkable(int x, int y)const override {
-		return map[y][x] != TileType::Wall;
-	}
+	virtual bool IsWalkable(int x, int y)const override;
 	Wanted::Vector2 GetPlayerPosition() const;
 	// 적 생성 함수.
 	void SpawnEnemy(BSPGenerator& bsp, const Wanted::Vector2& playerPos);
@@ -48,6 +47,9 @@ public:
 
 	// 다음 층 이동 전, 기존 액터들 삭제 처리 함수.
 	void DestroyActors();
+
+	// 현재 층을 보여주는 함수.
+	void ShowScore();
 
 private:
 	// BSP 활용 맵 생성 함수.
@@ -78,4 +80,7 @@ private:
 	bool isGameClear = false;
 
 	int floor = 1; // 던전 층 변수.
+
+	// 층 문자열.
+	char floorString[128];
 };

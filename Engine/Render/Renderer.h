@@ -4,7 +4,7 @@
 #include "Math/Color.h"
 #include <Windows.h>
 #include <vector>
-#include "EffectManager.h" // Áøµ¿ È¿°ú¸¦ À§ÇÔ.
+#include "EffectManager.h"
 
 namespace Wanted
 {
@@ -27,6 +27,7 @@ namespace Wanted
 			Vector2 position;
 			Color color = Color::WHITE;
 			int sortingOrder = 0;
+			bool isUI = false; // [ì¶”ê°€] UI ì—¬ë¶€ í”Œëž˜ê·¸
 		};
 
 	public:
@@ -34,13 +35,15 @@ namespace Wanted
 		~Renderer();
 
 		void Draw(float deltaTime);
-		void Submit(const char* text, const Vector2& position, Color color = Color::WHITE, int sortingOrder = 0);
+		
+		// [ìˆ˜ì •] isUI ë§¤ê°œë³€ìˆ˜ ì¶”ê°€
+		void Submit(const char* text, const Vector2& position, Color color = Color::WHITE, int sortingOrder = 0, bool isUI = false);
 
 		static Renderer& Get();
 
 		// Screen and Camera
 		Vector2 GetScreenSize() const { return screenSize; }
-		void SetCameraPosition(const Vector2& pos); //{ cameraPosition = pos; }
+		void SetCameraPosition(const Vector2& pos);
 		Vector2 GetCameraPosition() const { return cameraPosition; }
 
 	private:

@@ -40,6 +40,10 @@ namespace Wanted
 		// 전역 접근 함수.
 		static Engine& Get();
 
+		//Getter.
+		int GetHeight() const { return setting.height; }
+
+
 	protected:
 
 		// 정리 함수.
@@ -57,7 +61,6 @@ namespace Wanted
 
 		// 그리기 함수. (Draw/Render).
 		void Draw(float deltaTime);
-
 	protected:
 		// 엔진 종료 플래그.
 		bool isQuit = false;

@@ -51,16 +51,17 @@ void Enemy::Tick(float deltaTime)
 					}
 					else
 					{
-						// 의심 상태로 설정할 경우.
-						state = EnemyState::SUSPICIOUS;
-						aggroGauge = 50.f;
-						pathIndex = 0;
-						currentPath.clear();
+						// 불안정한 코드: 의심 상태로 설정할 경우.(플레이어 추적에 문제 발생 코드)
+						//state = EnemyState::SUSPICIOUS;
+						//aggroGauge = 50.f;
+						//pathIndex = 0;
+						//currentPath.clear();
+						
 						// IDLE상태로 설정할 경우.
-						/*state = EnemyState::IDLE;
+						state = EnemyState::IDLE;
 						aggroGauge = 0.0f;
 						pathIndex = 0;
-						currentPath.clear();*/
+						currentPath.clear();
 					}
 				}
 			}
@@ -177,9 +178,22 @@ bool Enemy::CanSeePlayer(const Wanted::Vector2& playerPos, const IMapPathfinder&
 	float dot = lookDir.Dot(diff);
 	float angle = cosf(viewAngle * 0.5f * (3.14159f / 180.0f));
 	if (dot < angle) return false;
-
+	
+	// 오버헤드 문제 해결을 위한 함수 호출 줄이기.
+	int mapW = map.GetWidth();
+	int mapH = map.GetHeight();
+	
 	for (float d = 0.5f; d < distance; d += 0.5f) {
 		Wanted::Vector2 checkPos = myPos + (diff * d);
+
+		// 확인 하려는 위치가 map크기를 넘는 경우 false (벡터의 인덱스 초과 접근 오류 방지). 
+		// 양수 음수 모두 방지.
+		if ((int)checkPos.x < 0 || (int)checkPos.x >= map.GetWidth()
+			|| (int)checkPos.y < 0 || (int)checkPos.y >= map.GetHeight())
+		{
+			return false;
+		}
+
 		if (map.GetTileAt((int)checkPos.x, (int)checkPos.y) == TileType::Wall) {
 			return false;
 		}
